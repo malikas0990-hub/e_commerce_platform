@@ -55,6 +55,16 @@ export default function AdminDashboard() {
     catch { message.error('Xatolik'); }
   };
 
+  const changePayment = async (id, paymentStatus) => {
+    try { await ordersApi.setPayment(id, paymentStatus); message.success("To'lov holati yangilandi"); load(); }
+    catch (e) { message.error(e.response?.data?.error || 'Xatolik'); }
+  };
+
+  const deleteStaff = async (id) => {
+    try { await staffApi.remove(id); message.success("Xodim o'chirildi"); load(); }
+    catch (e) { message.error(e.response?.data?.error || 'Xatolik'); }
+  };
+
   /* ---------- STAFF ---------- */
   const createStaff = async (v) => {
     try { await staffApi.create(v); message.success("Xodim qo'shildi"); setStaffModal(false); staffForm.resetFields(); load(); }
@@ -134,7 +144,10 @@ export default function AdminDashboard() {
         { title: 'Raqam', dataIndex: 'orderNumber' },
         { title: 'Mijoz', dataIndex: 'customerName' },
         { title: 'Jami', dataIndex: 'totalPrice', render: (p) => `${Number(p).toLocaleString()} so'm` },
-        { title: "To'lov", dataIndex: 'paymentStatus' },
+        { title: "To'lov", dataIndex: 'paymentStatus', render: (p, r) => (
+          <Select size="small" value={p} style={{ width: 110 }} onChange={(v) => changePayment(r.id, v)}
+            options={[{ value: 'unpaid', label: "to'lanmagan" }, { value: 'paid', label: "to'langan" }, { value: 'refunded', label: 'qaytarilgan' }]} />
+        ) },
         { title: 'Status', dataIndex: 'status', render: (s, r) => (
           <Select size="small" value={s} style={{ width: 130 }} onChange={(v) => changeStatus(r.id, v)}
             options={STATUSES.map((x) => ({ value: x, label: x }))} />
@@ -168,6 +181,11 @@ export default function AdminDashboard() {
               options={['admin', 'manager', 'customer'].map((x) => ({ value: x, label: x }))} />
           ) },
           { title: 'Yaratilgan', dataIndex: 'createdAt', render: (d) => new Date(d).toLocaleDateString('uz-UZ') },
+          { title: 'Amal', render: (_, row) => row.role === 'superadmin' ? null : (
+            <Popconfirm title="Xodim o'chirilsinmi?" okText="Ha" cancelText="Yo'q" onConfirm={() => deleteStaff(row.id)}>
+              <Button size="small" danger>O'chirish</Button>
+            </Popconfirm>
+          ) },
         ]} />
     </div>
   );

@@ -38,7 +38,6 @@ router.post('/', authenticateToken, async (req, res) => {
       status: 'pending',
     }, { transaction: t });
 
-    // CRM: bump customer status / lifetime value
     const customer = await Customer.findOne({ where: { userId: req.user.id }, transaction: t });
     if (customer) {
       const newTotal = Number(customer.totalSpent) + totalPrice;
@@ -61,13 +60,41 @@ router.get('/my', authenticateToken, async (req, res) => {
   res.json(orders);
 });
 
-// Update status (admin/manager)
+// Update status (admin/manager). Restores stock when an order is cancelled.
 router.patch('/:id/status', authenticateToken, authorizeRoles('admin', 'manager'), async (req, res) => {
   const { status } = req.body;
   const order = await Order.findByPk(req.params.id);
   if (!order) return res.status(404).json({ error: 'Buyurtma topilmadi' });
-  await order.update({ status });
+
+  await sequelize.transaction(async (t) => {
+    // Return items to stock when transitioning into 'cancelled'
+    if (status === 'cancelled' && order.status !== 'cancelled') {
+      for (const item of order.items || []) {
+        const product = await Product.findByPk(item.productId, { transaction: t, lock: t.LOCK.UPDATE });
+        if (product) { product.stock += item.quantity; await product.save({ transaction: t }); }
+      }
+    }
+    await order.update({ status }, { transaction: t });
+  });
+
+  await cacheInvalidate('cache:/api/products*');
   getIO().emit('order:updated', { id: order.id, status });
+  res.json(order);
+});
+
+// Update payment status (admin/manager) — drives revenue statistics
+router.patch('/:id/payment', authenticateToken, authorizeRoles('admin', 'manager'), async (req, res) => {
+  const { paymentStatus } = req.body;
+  if (!['unpaid', 'paid', 'refunded'].includes(paymentStatus)) {
+    return res.status(400).json({ error: "Noto'g'ri to'lov holati" });
+  }
+  const order = await Order.findByPk(req.params.id);
+  if (!order) return res.status(404).json({ error: 'Buyurtma topilmadi' });
+  // Paying confirms a pending order automatically
+  const patch = { paymentStatus };
+  if (paymentStatus === 'paid' && order.status === 'pending') patch.status = 'confirmed';
+  await order.update(patch);
+  getIO().emit('order:updated', { id: order.id, paymentStatus });
   res.json(order);
 });
 

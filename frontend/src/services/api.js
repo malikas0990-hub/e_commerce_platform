@@ -64,6 +64,7 @@ export const orders = {
   create: (data) => api.post('/orders', data),
   my: () => api.get('/orders/my'),
   setStatus: (id, status) => api.patch(`/orders/${id}/status`, { status }),
+  setPayment: (id, paymentStatus) => api.patch(`/orders/${id}/payment`, { paymentStatus }),
 };
 
 export const admin = {
