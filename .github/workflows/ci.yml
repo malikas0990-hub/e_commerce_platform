@@ -48,11 +48,25 @@ jobs:
       - name: Build frontend image
         run: docker build -t clothing-frontend:ci ./frontend
 
-  # Deployment placeholder — wire up to AWS ECS / your registry when ready.
+  # Deploy to the production server over SSH (git pull + rebuild + restart).
   deploy:
     name: Deploy (main only)
     needs: docker-build
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
-      - run: echo "Deploy step — configure AWS credentials & 'aws ecs update-service' here."
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          command_timeout: 20m
+          script: |
+            set -e
+            cd /home/ubuntu/crm-ecommerce
+            git fetch origin main
+            git reset --hard origin/main
+            docker compose build
+            docker compose up -d
+            docker image prune -f
