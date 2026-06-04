@@ -17,7 +17,7 @@ export default function Layout() {
     { key: '/products', label: <Link to="/products">Katalog</Link> },
   ];
   if (user) items.push({ key: '/account', label: <Link to="/account">Kabinet</Link> });
-  if (user && (user.role === 'admin' || user.role === 'manager')) {
+  if (user && ['superadmin', 'admin', 'manager'].includes(user.role)) {
     items.push({ key: '/admin', label: <Link to="/admin">Dashboard</Link> });
   }
 

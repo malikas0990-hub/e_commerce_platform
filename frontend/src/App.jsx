@@ -20,11 +20,11 @@ export default function App() {
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route
             path="/account"
-            element={<ProtectedRoute roles={['customer', 'admin', 'manager']}><CustomerPanel /></ProtectedRoute>}
+            element={<ProtectedRoute roles={['customer', 'superadmin', 'admin', 'manager']}><CustomerPanel /></ProtectedRoute>}
           />
           <Route
             path="/admin"
-            element={<ProtectedRoute roles={['admin', 'manager']}><AdminDashboard /></ProtectedRoute>}
+            element={<ProtectedRoute roles={['superadmin', 'admin', 'manager']}><AdminDashboard /></ProtectedRoute>}
           />
         </Route>
       </Routes>
