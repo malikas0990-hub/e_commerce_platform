@@ -1,14 +1,14 @@
-# 🛍️ Ulgurji Kiyim eCommerce + CRM (Cloud)
+# 🛍️ Wholesale Clothing eCommerce + CRM (Cloud)
 
-Ulgurji kiyim-kechak savdosi uchun **dinamik eCommerce + CRM** platformasi.
-BTEC Cloud Computing assignment talablariga mos: SPA frontend, RESTful backend,
-PostgreSQL + Redis, Docker, CI/CD va AWS (VPC, Load Balancer, Auto-scaling).
+A **dynamic eCommerce + CRM** platform for wholesale clothing trade.
+Built to the BTEC Cloud Computing assignment requirements: SPA frontend, RESTful backend,
+PostgreSQL + Redis, Docker, CI/CD and AWS (VPC, Load Balancer, Auto-scaling).
 
 ![CI](https://github.com/USERNAME/clothing-ecommerce/actions/workflows/ci.yml/badge.svg)
 
 ---
 
-## 🏗️ Arxitektura
+## 🏗️ Architecture
 
 ```
                           Internet
@@ -24,120 +24,120 @@ PostgreSQL + Redis, Docker, CI/CD va AWS (VPC, Load Balancer, Auto-scaling).
         └───────┬───────────────────────┬───────────┘
                 │                        │
        ┌────────▼────────┐     ┌─────────▼─────────┐
-       │ RDS PostgreSQL  │     │ ElastiCache Redis │   (private, internetdan yashirin)
+       │ RDS PostgreSQL  │     │ ElastiCache Redis │   (private, hidden from internet)
        └─────────────────┘     └───────────────────┘
                 │
-          NAT Gateway ──► internetga faqat chiqish (outbound)
+          NAT Gateway ──► outbound internet access only
 
 CloudWatch CPU > 70% ⇒ scale up (+2) ;  CPU < 25% ⇒ scale down (−1)
 ```
 
 ---
 
-## 🧩 Texnologiyalar
+## 🧩 Technologies
 
-| Qatlam        | Texnologiya |
+| Layer         | Technology |
 |---------------|-------------|
 | Frontend      | React 18 (Vite SPA), Ant Design, Recharts, Socket.IO client |
 | Backend       | Node.js, Express, Sequelize, Socket.IO |
-| Ma'lumotlar   | PostgreSQL 15 (relyatsion), Redis 7 (kesh) |
-| Auth          | JWT + RBAC (4 rol) |
-| Konteyner     | Docker, Docker Compose |
+| Data          | PostgreSQL 15 (relational), Redis 7 (cache) |
+| Auth          | JWT + RBAC (4 roles) |
+| Container     | Docker, Docker Compose |
 | CI/CD         | GitHub Actions |
 | Infra (IaC)   | Terraform (AWS VPC, ALB, ASG, RDS, ElastiCache, CloudWatch) |
 
 ---
 
-## 👥 CRM rollari (RBAC)
+## 👥 CRM roles (RBAC)
 
-Whiteboarddagi talabga muvofiq CRM 3 ta boshqaruv rolidan iborat + mijoz:
+As required, the CRM consists of 3 management roles plus the customer:
 
-| Rol          | Imkoniyatlar |
+| Role         | Capabilities |
 |--------------|--------------|
-| **superadmin** | To'liq nazorat + **xodimlarni boshqarish** (admin/manager yaratish, rol berish) |
-| **admin**      | Katalog, buyurtmalar, mijozlar (CRM) ni boshqarish |
-| **manager**    | Dashboard ko'rish, buyurtma statuslarini yangilash |
-| customer       | Katalog, savatcha, buyurtma berish, o'z kabineti |
+| **superadmin** | Full control + **staff management** (create admin/manager, assign roles) |
+| **admin**      | Manage catalog, orders, customers (CRM) |
+| **manager**    | View dashboard, update order statuses |
+| customer       | Catalog, cart, place orders, own account |
 
 ---
 
-## 🚀 Lokal ishga tushirish (Docker — 1 buyruq)
+## 🚀 Run locally (Docker — 1 command)
 
 ```bash
 docker compose up --build
 ```
 
-Ochiladi:
+Opens:
 - Frontend → http://localhost:3000
 - Backend API → http://localhost:5000/api  (health: http://localhost:5000/health)
 - PostgreSQL → localhost:5432
 - Redis → localhost:6379
 
-Boshlang'ich (seed) loginlar:
+Initial (seed) logins:
 
-| Rol        | Email                  | Parol       |
+| Role       | Email                  | Password    |
 |------------|------------------------|-------------|
 | Superadmin | superadmin@shop.uz     | super123    |
 | Admin      | admin@shop.uz          | admin123    |
 | Manager    | manager@shop.uz        | manager123  |
-| Mijoz      | customer@shop.uz       | customer123 |
+| Customer   | customer@shop.uz       | customer123 |
 
 ---
 
-## 🛠️ Dasturchilar uchun (Docker'siz)
+## 🛠️ For developers (without Docker)
 
 ```bash
 # Backend
 cd backend && npm install && cp .env.example .env && npm run dev
-# Frontend (alohida terminal)
+# Frontend (separate terminal)
 cd frontend && npm install && npm run dev
 ```
-Frontend Vite proxy orqali `/api` va `/socket.io` ni backendga (5000) yo'naltiradi.
+The Vite proxy forwards `/api` and `/socket.io` to the backend (5000).
 
 ---
 
-## 📡 Asosiy API endpointlar
+## 📡 Main API endpoints
 
-| Metod | Yo'l | Tavsif | Ruxsat |
+| Method | Path | Description | Access |
 |-------|------|--------|--------|
-| POST | `/api/auth/register` | Ro'yxatdan o'tish | hammaga |
-| POST | `/api/auth/login` | Kirish | hammaga |
-| GET  | `/api/products` | Katalog (filter, sahifalash, kesh) | hammaga |
-| POST | `/api/orders` | Buyurtma berish (ombor tekshiruvi, tranzaksiya) | auth |
-| GET  | `/api/orders/my` | Mening buyurtmalarim | auth |
-| GET  | `/api/admin/stats` | Dashboard statistikasi | admin/manager |
-| GET  | `/api/admin/analytics` | Sotuv trendi | admin/manager |
-| GET  | `/api/admin/customers` | CRM mijozlar ro'yxati | admin/manager |
-| GET/POST | `/api/users` | Xodimlarni boshqarish | **superadmin** |
+| POST | `/api/auth/register` | Register | everyone |
+| POST | `/api/auth/login` | Log in | everyone |
+| GET  | `/api/products` | Catalog (filter, pagination, cache) | everyone |
+| POST | `/api/orders` | Place an order (stock check, transaction) | auth |
+| GET  | `/api/orders/my` | My orders | auth |
+| GET  | `/api/admin/stats` | Dashboard statistics | admin/manager |
+| GET  | `/api/admin/analytics` | Sales trend | admin/manager |
+| GET  | `/api/admin/customers` | CRM customer list | admin/manager |
+| GET/POST | `/api/users` | Staff management | **superadmin** |
 
 ---
 
-## ☁️ AWS'ga deploy (Terraform)
+## ☁️ Deploy to AWS (Terraform)
 
 ```bash
 cd infrastructure
-cp terraform.tfvars.example terraform.tfvars   # qiymatlarni to'ldiring
+cp terraform.tfvars.example terraform.tfvars   # fill in the values
 terraform init
 terraform plan
 terraform apply
 ```
-Natijada: VPC (public/private subnet) + NAT + ALB + Auto Scaling Group (2–10) +
-RDS PostgreSQL + ElastiCache Redis + CloudWatch alarmlari yaratiladi.
-`terraform output alb_dns_name` — saytning ommaviy manzili.
+Result: VPC (public/private subnets) + NAT + ALB + Auto Scaling Group (2–10) +
+RDS PostgreSQL + ElastiCache Redis + CloudWatch alarms.
+`terraform output alb_dns_name` — the public address of the site.
 
-> Eslatma: `terraform apply` haqiqiy AWS akkaunt va kreditsiallarni talab qiladi
-> (xarajatga sabab bo'ladi). Topshiriq uchun `terraform plan` natijasini ko'rsatish kifoya.
+> Note: `terraform apply` requires a real AWS account and credentials
+> (which incur costs). For the assignment, showing the `terraform plan` output is sufficient.
 
 ---
 
 ## 🔄 CI/CD
 
-Har bir `main`ga push: backend testlari → frontend build → Docker image build →
-deploy bosqichi (`.github/workflows/ci.yml`).
+On every push to `main`: backend tests → frontend build → Docker image build →
+deploy stage (`.github/workflows/ci.yml`).
 
 ---
 
-## 📂 Struktura
+## 📂 Structure
 
 ```
 clothing-ecommerce/
@@ -149,5 +149,5 @@ clothing-ecommerce/
 └── docker-compose.yml
 ```
 
-## 📜 Litsenziya
-MIT — BTEC Cloud Computing Assignment uchun ta'limiy loyiha.
+## 📜 License
+MIT — educational project for the BTEC Cloud Computing Assignment.

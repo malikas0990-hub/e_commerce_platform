@@ -13,10 +13,10 @@ export default function Layout() {
   const cart = JSON.parse(localStorage.getItem('cart') || '[]');
 
   const items = [
-    { key: '/', label: <Link to="/">Bosh sahifa</Link> },
-    { key: '/products', label: <Link to="/products">Katalog</Link> },
+    { key: '/', label: <Link to="/">Home</Link> },
+    { key: '/products', label: <Link to="/products">Catalog</Link> },
   ];
-  if (user) items.push({ key: '/account', label: <Link to="/account">Kabinet</Link> });
+  if (user) items.push({ key: '/account', label: <Link to="/account">Account</Link> });
   if (user && ['superadmin', 'admin', 'manager'].includes(user.role)) {
     items.push({ key: '/admin', label: <Link to="/admin">Dashboard</Link> });
   }
@@ -32,16 +32,16 @@ export default function Layout() {
           <Button shape="circle" icon={<ShoppingCartOutlined />} onClick={() => navigate('/checkout')} />
         </Badge>
         {user ? (
-          <Button onClick={() => { auth.logout(); navigate('/login'); }}>Chiqish ({user.name})</Button>
+          <Button onClick={() => { auth.logout(); navigate('/login'); }}>Log out ({user.name})</Button>
         ) : (
-          <Button type="primary" onClick={() => navigate('/login')}>Kirish</Button>
+          <Button type="primary" onClick={() => navigate('/login')}>Log in</Button>
         )}
       </Header>
       <Content>
         <div className="page"><Outlet /></div>
       </Content>
       <Footer style={{ textAlign: 'center' }}>
-        Ulgurji Kiyim Platformasi © 2026 — BTEC Cloud Computing Assignment
+        Wholesale Clothing Platform © 2026 — BTEC Cloud Computing Assignment
       </Footer>
     </AntLayout>
   );

@@ -35,7 +35,7 @@ router.get('/', cacheMiddleware(60), async (req, res) => {
 // Public: single product
 router.get('/:id', cacheMiddleware(60), async (req, res) => {
   const product = await Product.findByPk(req.params.id);
-  if (!product) return res.status(404).json({ error: 'Mahsulot topilmadi' });
+  if (!product) return res.status(404).json({ error: 'Product not found' });
   res.json(product);
 });
 
@@ -49,7 +49,7 @@ router.post('/', authenticateToken, authorizeRoles('admin', 'manager'), async (r
 // Admin/manager: update
 router.patch('/:id', authenticateToken, authorizeRoles('admin', 'manager'), async (req, res) => {
   const product = await Product.findByPk(req.params.id);
-  if (!product) return res.status(404).json({ error: 'Mahsulot topilmadi' });
+  if (!product) return res.status(404).json({ error: 'Product not found' });
   await product.update(req.body);
   await cacheInvalidate('cache:/api/products*');
   res.json(product);
@@ -58,7 +58,7 @@ router.patch('/:id', authenticateToken, authorizeRoles('admin', 'manager'), asyn
 // Admin only: delete
 router.delete('/:id', authenticateToken, authorizeRoles('admin'), async (req, res) => {
   const product = await Product.findByPk(req.params.id);
-  if (!product) return res.status(404).json({ error: 'Mahsulot topilmadi' });
+  if (!product) return res.status(404).json({ error: 'Product not found' });
   await product.destroy();
   await cacheInvalidate('cache:/api/products*');
   res.json({ success: true });

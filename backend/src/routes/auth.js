@@ -20,7 +20,7 @@ router.post('/register', async (req, res) => {
   if (error) return res.status(400).json({ error: error.details[0].message });
 
   const exists = await User.findOne({ where: { email: value.email } });
-  if (exists) return res.status(409).json({ error: 'Bu email allaqachon ro\'yxatdan o\'tgan' });
+  if (exists) return res.status(409).json({ error: 'This email is already registered' });
 
   const hash = await bcrypt.hash(value.password, 10);
   const user = await User.create({
@@ -38,13 +38,13 @@ router.post('/register', async (req, res) => {
 // Login
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
-  if (!email || !password) return res.status(400).json({ error: 'Email va parol kerak' });
+  if (!email || !password) return res.status(400).json({ error: 'Email and password are required' });
 
   const user = await User.findOne({ where: { email } });
-  if (!user) return res.status(401).json({ error: 'Email yoki parol xato' });
+  if (!user) return res.status(401).json({ error: 'Invalid email or password' });
 
   const ok = await bcrypt.compare(password, user.password);
-  if (!ok) return res.status(401).json({ error: 'Email yoki parol xato' });
+  if (!ok) return res.status(401).json({ error: 'Invalid email or password' });
 
   const token = signToken(user);
   res.json({ token, user: { id: user.id, name: user.name, email: user.email, role: user.role } });

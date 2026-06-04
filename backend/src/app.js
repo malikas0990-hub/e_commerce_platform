@@ -18,7 +18,7 @@ app.use('/api/', rateLimit({
   max: 300,
   standardHeaders: true,
   legacyHeaders: false,
-  message: { error: "Juda ko'p so'rovlar — birozdan keyin qayta urinib ko'ring" },
+  message: { error: 'Too many requests — please try again shortly' },
 }));
 
 // Health check — used by the AWS ALB target group
@@ -32,13 +32,13 @@ app.use('/api/admin', require('./routes/admin'));
 app.use('/api/users', require('./routes/users'));
 
 // 404
-app.use((req, res) => res.status(404).json({ error: 'Topilmadi' }));
+app.use((req, res) => res.status(404).json({ error: 'Not found' }));
 
 // Central error handler
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
   logger.error(`${err.status || 500} ${err.message}`);
-  res.status(err.status || 500).json({ error: err.message || 'Ichki server xatosi' });
+  res.status(err.status || 500).json({ error: err.message || 'Internal server error' });
 });
 
 module.exports = app;

@@ -19,18 +19,18 @@ export default function CustomerPanel() {
 
   return (
     <div>
-      <Card title={`Mening kabinetim — ${user?.name}`} style={{ marginBottom: 16 }}>
+      <Card title={`My account — ${user?.name}`} style={{ marginBottom: 16 }}>
         <p>Email: {user?.email}</p>
-        <p>Rol: <Tag color="blue">{user?.role}</Tag></p>
+        <p>Role: <Tag color="blue">{user?.role}</Tag></p>
       </Card>
-      <Card title="Buyurtmalarim">
+      <Card title="My orders">
         <Spin spinning={loading}>
           <Table rowKey="id" dataSource={list}
             columns={[
-              { title: 'Raqam', dataIndex: 'orderNumber' },
-              { title: 'Jami', dataIndex: 'totalPrice', render: (p) => `${Number(p).toLocaleString()} so'm` },
+              { title: 'Number', dataIndex: 'orderNumber' },
+              { title: 'Total', dataIndex: 'totalPrice', render: (p) => `${Number(p).toLocaleString()} UZS` },
               { title: 'Status', dataIndex: 'status', render: (s) => <Tag color={statusColor[s]}>{s}</Tag> },
-              { title: 'Sana', dataIndex: 'createdAt', render: (d) => new Date(d).toLocaleString('uz-UZ') },
+              { title: 'Date', dataIndex: 'createdAt', render: (d) => new Date(d).toLocaleString('en-US') },
             ]} />
         </Spin>
       </Card>

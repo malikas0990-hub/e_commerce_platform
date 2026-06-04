@@ -17,27 +17,27 @@ async function start() {
       await sequelize.authenticate();
       connected = true;
     } catch (err) {
-      logger.warn(`DB ulanmadi (urinish ${i}/10): ${err.message}`);
+      logger.warn(`DB connection failed (attempt ${i}/10): ${err.message}`);
       await new Promise((r) => setTimeout(r, 3000));
     }
   }
   if (!connected) {
-    logger.error('Postgresga ulanib bo\'lmadi. Chiqildi.');
+    logger.error('Could not connect to Postgres. Exiting.');
     process.exit(1);
   }
 
   await sequelize.sync({ alter: process.env.NODE_ENV === 'development' });
-  logger.info('Database tayyor (sync bajarildi)');
+  logger.info('Database ready (sync complete)');
 
-  await connectRedis().catch((e) => logger.warn(`Redis ulanmadi: ${e.message}`));
+  await connectRedis().catch((e) => logger.warn(`Redis connection failed: ${e.message}`));
 
   if (process.env.SEED_ON_START !== 'false') {
-    await runSeed().catch((e) => logger.warn(`Seed o'tkazib yuborildi: ${e.message}`));
+    await runSeed().catch((e) => logger.warn(`Seed skipped: ${e.message}`));
   }
 
   const server = http.createServer(app);
   initSocket(server);
-  server.listen(PORT, () => logger.info(`✅ Server ${PORT}-portda ishlamoqda`));
+  server.listen(PORT, () => logger.info(`✅ Server running on port ${PORT}`));
 }
 
 start();

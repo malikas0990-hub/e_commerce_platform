@@ -12,10 +12,10 @@ export default function LoginPage() {
     try {
       const { data } = await auth.login(v.email, v.password);
       auth.save(data.token, data.user);
-      message.success('Xush kelibsiz!');
+      message.success('Welcome!');
       navigate(data.user.role === 'customer' ? '/products' : '/admin');
     } catch (e) {
-      message.error(e.response?.data?.error || 'Kirishda xatolik');
+      message.error(e.response?.data?.error || 'Login failed');
     } finally {
       setLoading(false);
     }
@@ -26,10 +26,10 @@ export default function LoginPage() {
     try {
       const { data } = await auth.register(v);
       auth.save(data.token, data.user);
-      message.success('Ro\'yxatdan o\'tdingiz!');
+      message.success('Registration successful!');
       navigate('/products');
     } catch (e) {
-      message.error(e.response?.data?.error || 'Ro\'yxatdan o\'tishda xatolik');
+      message.error(e.response?.data?.error || 'Registration failed');
     } finally {
       setLoading(false);
     }
@@ -37,37 +37,37 @@ export default function LoginPage() {
 
   return (
     <div style={{ maxWidth: 420, margin: '60px auto' }}>
-      <Card title="Ulgurji Kiyim Platformasi">
+      <Card title="Wholesale Clothing Platform">
         <Alert
           type="info" showIcon style={{ marginBottom: 16 }}
-          message="Demo loginlar"
-          description={<>Admin: admin@shop.uz / admin123<br />Mijoz: customer@shop.uz / customer123</>}
+          message="Demo logins"
+          description={<>Admin: admin@shop.uz / admin123<br />Customer: customer@shop.uz / customer123</>}
         />
         <Tabs
           items={[
             {
-              key: 'login', label: 'Kirish',
+              key: 'login', label: 'Log in',
               children: (
                 <Form layout="vertical" onFinish={doLogin}>
                   <Form.Item name="email" label="Email" rules={[{ required: true, type: 'email' }]}>
                     <Input placeholder="admin@shop.uz" />
                   </Form.Item>
-                  <Form.Item name="password" label="Parol" rules={[{ required: true }]}>
+                  <Form.Item name="password" label="Password" rules={[{ required: true }]}>
                     <Input.Password placeholder="admin123" />
                   </Form.Item>
-                  <Button type="primary" htmlType="submit" block loading={loading}>Kirish</Button>
+                  <Button type="primary" htmlType="submit" block loading={loading}>Log in</Button>
                 </Form>
               ),
             },
             {
-              key: 'register', label: 'Ro\'yxatdan o\'tish',
+              key: 'register', label: 'Register',
               children: (
                 <Form layout="vertical" onFinish={doRegister}>
-                  <Form.Item name="name" label="Ism" rules={[{ required: true }]}><Input /></Form.Item>
-                  <Form.Item name="company" label="Kompaniya"><Input /></Form.Item>
+                  <Form.Item name="name" label="Name" rules={[{ required: true }]}><Input /></Form.Item>
+                  <Form.Item name="company" label="Company"><Input /></Form.Item>
                   <Form.Item name="email" label="Email" rules={[{ required: true, type: 'email' }]}><Input /></Form.Item>
-                  <Form.Item name="password" label="Parol" rules={[{ required: true, min: 6 }]}><Input.Password /></Form.Item>
-                  <Button type="primary" htmlType="submit" block loading={loading}>Ro'yxatdan o'tish</Button>
+                  <Form.Item name="password" label="Password" rules={[{ required: true, min: 6 }]}><Input.Password /></Form.Item>
+                  <Button type="primary" htmlType="submit" block loading={loading}>Register</Button>
                 </Form>
               ),
             },

@@ -16,7 +16,7 @@ export default function ProductsPage() {
       const { data } = await productsApi.list({ limit: 100 });
       setList(data.data || []);
     } catch {
-      message.error('Mahsulotlarni yuklashda xatolik');
+      message.error('Failed to load products');
     } finally {
       setLoading(false);
     }
@@ -40,7 +40,7 @@ export default function ProductsPage() {
     if (existing) existing.quantity += 1;
     else cart.push({ productId: p.id, name: p.name, price: Number(p.price), quantity: 1 });
     localStorage.setItem('cart', JSON.stringify(cart));
-    message.success(`"${p.name}" savatchaga qo'shildi`);
+    message.success(`"${p.name}" added to cart`);
   };
 
   return (
@@ -48,14 +48,14 @@ export default function ProductsPage() {
       <div className="filters">
         <Row gutter={[12, 12]}>
           <Col xs={24} md={10}>
-            <Input.Search placeholder="Mahsulot qidirish..." value={search} onChange={(e) => setSearch(e.target.value)} allowClear />
+            <Input.Search placeholder="Search products..." value={search} onChange={(e) => setSearch(e.target.value)} allowClear />
           </Col>
           <Col xs={12} md={7}>
-            <Select placeholder="O'lcham" style={{ width: '100%' }} value={size} onChange={setSize} allowClear
+            <Select placeholder="Size" style={{ width: '100%' }} value={size} onChange={setSize} allowClear
               options={sizes.map((s) => ({ value: s, label: s }))} />
           </Col>
           <Col xs={12} md={7}>
-            <Select placeholder="Rang" style={{ width: '100%' }} value={color} onChange={setColor} allowClear
+            <Select placeholder="Color" style={{ width: '100%' }} value={color} onChange={setColor} allowClear
               options={colors.map((c) => ({ value: c, label: c }))} />
           </Col>
         </Row>
@@ -63,19 +63,19 @@ export default function ProductsPage() {
 
       <Spin spinning={loading}>
         {filtered.length === 0 && !loading ? (
-          <Empty description="Mahsulot topilmadi" />
+          <Empty description="No products found" />
         ) : (
           <Row gutter={[16, 16]}>
             {filtered.map((p) => (
               <Col key={p.id} xs={24} sm={12} md={8} lg={6}>
                 <Card hoverable cover={<img alt={p.name} src={p.image} style={{ height: 220, objectFit: 'cover' }} />}>
-                  <Card.Meta title={p.name} description={`${Number(p.price).toLocaleString()} so'm`} />
+                  <Card.Meta title={p.name} description={`${Number(p.price).toLocaleString()} UZS`} />
                   <div style={{ margin: '8px 0' }}>
                     {(p.sizes || []).map((s) => <Tag key={s}>{s}</Tag>)}
                   </div>
-                  <p className="stock">Omborda: {p.stock} dona</p>
+                  <p className="stock">In stock: {p.stock} units</p>
                   <Button type="primary" block icon={<ShoppingCartOutlined />} disabled={p.stock === 0} onClick={() => addToCart(p)}>
-                    {p.stock === 0 ? 'Tugagan' : 'Savatchaga'}
+                    {p.stock === 0 ? 'Out of stock' : 'Add to cart'}
                   </Button>
                 </Card>
               </Col>

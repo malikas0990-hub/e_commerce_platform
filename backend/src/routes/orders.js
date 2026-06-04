@@ -10,7 +10,7 @@ const router = express.Router();
 router.post('/', authenticateToken, async (req, res) => {
   const { items, shippingAddress } = req.body;
   if (!Array.isArray(items) || items.length === 0) {
-    return res.status(400).json({ error: 'Buyurtma tarkibi bo\'sh' });
+    return res.status(400).json({ error: 'Order is empty' });
   }
 
   const order = await sequelize.transaction(async (t) => {
@@ -19,9 +19,9 @@ router.post('/', authenticateToken, async (req, res) => {
 
     for (const item of items) {
       const product = await Product.findByPk(item.productId, { transaction: t, lock: t.LOCK.UPDATE });
-      if (!product) throw Object.assign(new Error(`Mahsulot topilmadi: ${item.productId}`), { status: 400 });
+      if (!product) throw Object.assign(new Error(`Product not found: ${item.productId}`), { status: 400 });
       if (product.stock < item.quantity) {
-        throw Object.assign(new Error(`"${product.name}" omborda yetarli emas (qoldiq: ${product.stock})`), { status: 400 });
+        throw Object.assign(new Error(`Not enough stock for "${product.name}" (remaining: ${product.stock})`), { status: 400 });
       }
       product.stock -= item.quantity;
       await product.save({ transaction: t });
@@ -64,7 +64,7 @@ router.get('/my', authenticateToken, async (req, res) => {
 router.patch('/:id/status', authenticateToken, authorizeRoles('admin', 'manager'), async (req, res) => {
   const { status } = req.body;
   const order = await Order.findByPk(req.params.id);
-  if (!order) return res.status(404).json({ error: 'Buyurtma topilmadi' });
+  if (!order) return res.status(404).json({ error: 'Order not found' });
 
   await sequelize.transaction(async (t) => {
     // Return items to stock when transitioning into 'cancelled'
@@ -86,10 +86,10 @@ router.patch('/:id/status', authenticateToken, authorizeRoles('admin', 'manager'
 router.patch('/:id/payment', authenticateToken, authorizeRoles('admin', 'manager'), async (req, res) => {
   const { paymentStatus } = req.body;
   if (!['unpaid', 'paid', 'refunded'].includes(paymentStatus)) {
-    return res.status(400).json({ error: "Noto'g'ri to'lov holati" });
+    return res.status(400).json({ error: 'Invalid payment status' });
   }
   const order = await Order.findByPk(req.params.id);
-  if (!order) return res.status(404).json({ error: 'Buyurtma topilmadi' });
+  if (!order) return res.status(404).json({ error: 'Order not found' });
   // Paying confirms a pending order automatically
   const patch = { paymentStatus };
   if (paymentStatus === 'paid' && order.status === 'pending') patch.status = 'confirmed';

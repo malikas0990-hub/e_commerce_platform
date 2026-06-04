@@ -31,7 +31,7 @@ router.post('/', async (req, res) => {
   if (error) return res.status(400).json({ error: error.details[0].message });
 
   const exists = await User.findOne({ where: { email: value.email } });
-  if (exists) return res.status(409).json({ error: 'Bu email allaqachon mavjud' });
+  if (exists) return res.status(409).json({ error: 'This email already exists' });
 
   const hash = await bcrypt.hash(value.password, 10);
   const user = await User.create({ name: value.name, email: value.email, password: hash, role: value.role });
@@ -42,11 +42,11 @@ router.post('/', async (req, res) => {
 router.patch('/:id/role', async (req, res) => {
   const { role } = req.body;
   if (!['admin', 'manager', 'customer'].includes(role)) {
-    return res.status(400).json({ error: "Noto'g'ri rol" });
+    return res.status(400).json({ error: 'Invalid role' });
   }
   const user = await User.findByPk(req.params.id);
-  if (!user) return res.status(404).json({ error: 'Foydalanuvchi topilmadi' });
-  if (user.role === 'superadmin') return res.status(403).json({ error: "Superadmin rolini o'zgartirib bo'lmaydi" });
+  if (!user) return res.status(404).json({ error: 'User not found' });
+  if (user.role === 'superadmin') return res.status(403).json({ error: 'Superadmin role cannot be changed' });
 
   await user.update({ role });
   res.json({ id: user.id, role: user.role });
@@ -55,9 +55,9 @@ router.patch('/:id/role', async (req, res) => {
 // Delete a user (cannot delete superadmin or self)
 router.delete('/:id', async (req, res) => {
   const user = await User.findByPk(req.params.id);
-  if (!user) return res.status(404).json({ error: 'Foydalanuvchi topilmadi' });
-  if (user.role === 'superadmin') return res.status(403).json({ error: "Superadmin o'chirib bo'lmaydi" });
-  if (user.id === req.user.id) return res.status(400).json({ error: "O'zingizni o'chira olmaysiz" });
+  if (!user) return res.status(404).json({ error: 'User not found' });
+  if (user.role === 'superadmin') return res.status(403).json({ error: 'Superadmin cannot be deleted' });
+  if (user.id === req.user.id) return res.status(400).json({ error: 'You cannot delete yourself' });
   await user.destroy();
   res.json({ success: true });
 });
