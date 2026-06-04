@@ -1,0 +1,4 @@
+aws_region  = "us-east-1"
+project     = "clothing-ecommerce"
+db_password = "ChangeMe-Strong-Password-123"
+backend_image = "YOUR_DOCKERHUB_USER/clothing-backend:latest"

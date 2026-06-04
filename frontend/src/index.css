@@ -1,0 +1,15 @@
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: #f5f6fa;
+}
+.page { max-width: 1200px; margin: 0 auto; padding: 24px 16px; }
+.hero {
+  background: linear-gradient(135deg, #1677ff 0%, #722ed1 100%);
+  color: #fff; padding: 64px 24px; text-align: center; border-radius: 12px; margin-bottom: 24px;
+}
+.hero h1 { font-size: 40px; margin: 0 0 12px; }
+.hero p { font-size: 18px; opacity: 0.9; margin: 0 0 24px; }
+.stock { color: #888; font-size: 13px; margin: 8px 0; }
+.filters { background: #fff; padding: 16px; border-radius: 10px; margin-bottom: 20px; }
