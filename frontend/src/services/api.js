@@ -56,6 +56,8 @@ export const products = {
   list: (params) => api.get('/products', { params }),
   get: (id) => api.get(`/products/${id}`),
   create: (data) => api.post('/products', data),
+  update: (id, data) => api.patch(`/products/${id}`, data),
+  remove: (id) => api.delete(`/products/${id}`),
 };
 
 export const orders = {
