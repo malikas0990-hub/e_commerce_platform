@@ -3,26 +3,26 @@ resource "aws_vpc" "main" {
   cidr_block           = var.vpc_cidr
   enable_dns_hostnames = true
   enable_dns_support   = true
-  tags = { Name = "${var.project}-vpc" }
+  tags                 = { Name = "${var.project}-vpc" }
 }
 
 # ===== Public subnets (Load Balancer + frontend live here) =====
 resource "aws_subnet" "public" {
   count                   = 2
   vpc_id                  = aws_vpc.main.id
-  cidr_block              = cidrsubnet(var.vpc_cidr, 8, count.index)       # 10.0.0.0/24, 10.0.1.0/24
+  cidr_block              = cidrsubnet(var.vpc_cidr, 8, count.index) # 10.0.0.0/24, 10.0.1.0/24
   availability_zone       = data.aws_availability_zones.available.names[count.index]
   map_public_ip_on_launch = true
-  tags = { Name = "${var.project}-public-${count.index}", Tier = "public" }
+  tags                    = { Name = "${var.project}-public-${count.index}", Tier = "public" }
 }
 
 # ===== Private subnets (backend + RDS + Redis hidden from internet) =====
 resource "aws_subnet" "private" {
   count             = 2
   vpc_id            = aws_vpc.main.id
-  cidr_block        = cidrsubnet(var.vpc_cidr, 8, count.index + 10)        # 10.0.10.0/24, 10.0.11.0/24
+  cidr_block        = cidrsubnet(var.vpc_cidr, 8, count.index + 10) # 10.0.10.0/24, 10.0.11.0/24
   availability_zone = data.aws_availability_zones.available.names[count.index]
-  tags = { Name = "${var.project}-private-${count.index}", Tier = "private" }
+  tags              = { Name = "${var.project}-private-${count.index}", Tier = "private" }
 }
 
 # ===== Internet Gateway (for public subnets) =====
