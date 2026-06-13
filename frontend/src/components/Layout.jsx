@@ -25,7 +25,7 @@ export default function Layout() {
     <AntLayout style={{ minHeight: '100vh' }}>
       <Header style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
         <div style={{ color: '#fff', fontWeight: 700, fontSize: 18, whiteSpace: 'nowrap' }}>
-          <ShopOutlined /> NavCloth
+          <ShopOutlined /> REMODULE
         </div>
         <Menu theme="dark" mode="horizontal" selectedKeys={[location.pathname]} items={items} style={{ flex: 1, minWidth: 0 }} />
         <Badge count={cart.length} size="small">
